@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import prisma from './prismaClient.js';
+import cors from 'cors';
 
 import authRoutes from './routes/authRoutes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
@@ -9,6 +10,7 @@ import leaveRoutes from './routes/leaveRoutes.js';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/users', async (req, res) => {
