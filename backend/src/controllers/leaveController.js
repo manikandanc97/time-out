@@ -7,6 +7,12 @@ export const applyLeave = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
+    if (new Date(fromDate) > new Date(toDate)) {
+      return res
+        .status(400)
+        .json({ error: 'From date cannot be after To date' });
+    }
+
     const leave = await prisma.leave.create({
       data: {
         type,
@@ -34,6 +40,24 @@ export const getLeaves = async (req, res) => {
       orderBy: { createdAt: 'desc' },
     });
     res.json(leaves);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+
+export const updateLeaveStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const updated = await prisma.leave.update({
+      where: { id: Number(req.params.id) },
+      data: { status },
+    });
+    res.json({ message: 'Leave status updated', leave: updated });
+    console.log('User:', req.user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server Error' });
