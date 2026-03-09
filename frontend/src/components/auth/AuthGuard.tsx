@@ -2,15 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import { setAccessToken } from '@/lib/token';
+import api from '@/services/api';
 
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-    }
+    api
+      .post('/auth/refresh')
+      .then((res) => {
+        setAccessToken(res.data.accessToken);
+      })
+      .catch(() => {
+        router.push('/login');
+      });
   }, [router]);
   return <div>{children}</div>;
 };

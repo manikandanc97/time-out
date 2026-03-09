@@ -41,12 +41,62 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid password' });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+    // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    //   expiresIn: '1h',
+    // });
+
+    const accessToken = jwt.sign(
+      { userId: user.id },
+      process.env.ACCESS_SECRET,
+      {
+        expiresIn: '15m',
+      },
+    );
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.REFRESH_SECRET,
+      {
+        expiresIn: '7d',
+      },
+    );
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
     });
-    res.json({ message: 'Login successful', token });
+
+    res.json({ message: 'Login successful', accessToken });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server Error' });
   }
+};
+
+export const refreshTokenHandler = (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  jwt.verify(token, process.env.REFRESH_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Invalid token' });
+
+    const newAccessToken = jwt.sign(
+      { userId: user.userId },
+      process.env.ACCESS_SECRET,
+      {
+        expiresIn: '15m',
+      },
+    );
+    res.json({ accessToken: newAccessToken });
+  });
+};
+
+export const logout = (req, res) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+  });
+  res.json({ message: 'Logged out successfully' });
 };

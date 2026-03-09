@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
 interface ButtonProps {
-  type?: "button" | "submit";
+  type?: 'button' | 'submit';
   children: React.ReactNode;
   disabled?: boolean;
   className?: string;
@@ -10,16 +10,17 @@ interface ButtonProps {
 
 const Button = (props: ButtonProps) => {
   const {
-    type = "button",
+    type = 'button',
     children,
     disabled = false,
-    className = "",
+    className = '',
     onClick,
   } = props;
   return (
     <button
       type={type}
       disabled={disabled}
+      onClick={onClick}
       className={`bg-primary hover:bg-primary-dark disabled:opacity-50 py-2 rounded-lg w-full text-white transition-colors duration-300 cursor-pointer ${className}`}
     >
       {children}

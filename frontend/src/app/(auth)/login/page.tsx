@@ -2,6 +2,7 @@
 
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { setAccessToken } from '@/lib/token';
 import api from '@/services/api';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -33,8 +34,9 @@ const Login = () => {
 
     try {
       const res = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
+      setAccessToken(res.data.accessToken);
       toast.success('Login successful!');
+
       router.push('/dashboard');
     } catch (error: any) {
       toast.error(error.response?.data?.error);
