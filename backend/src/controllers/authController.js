@@ -7,14 +7,14 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res
         .status(400)
-        .json({ error: 'User already registered with this email' });
+        .json({ message: 'User already registered with this email' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,7 +29,7 @@ export const register = async (req, res) => {
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Server Error' });
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
@@ -39,13 +39,13 @@ export const login = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ error: 'User not found' });
+      return res.status(400).json({ message: 'User not found' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid password' });
+      return res.status(400).json({ message: 'Invalid password' });
     }
 
     // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
@@ -63,7 +63,7 @@ export const login = async (req, res) => {
       { userId: user.id },
       process.env.REFRESH_SECRET,
       {
-        expiresIn: '7d',
+        expiresIn: '1d',
       },
     );
 
@@ -76,17 +76,17 @@ export const login = async (req, res) => {
     res.json({ message: 'Login successful', accessToken });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Server Error' });
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
 export const refreshTokenHandler = (req, res) => {
   const token = req.cookies.refreshToken;
 
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+  if (!token) return res.status(401).json({ message: 'No token provided' });
 
   jwt.verify(token, process.env.REFRESH_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
+    if (err) return res.status(403).json({ message: 'Invalid token' });
 
     const newAccessToken = jwt.sign(
       { userId: user.userId },

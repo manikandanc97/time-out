@@ -24,7 +24,7 @@ api.interceptors.response.use(
 
       try {
         const res = await api.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          '/auth/refresh',
           {},
           { withCredentials: true },
         );
@@ -39,10 +39,8 @@ api.interceptors.response.use(
         clearAccessToken();
         window.location.href = '/login';
       }
-
-      return Promise.reject(error);
     }
-    return error;
+    return Promise.reject(error);
   },
 );
 

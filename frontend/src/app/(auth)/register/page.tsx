@@ -23,19 +23,16 @@ const Register = () => {
     }
 
     try {
-      const response = await api.post('/auth/register', {
+      await api.post('/auth/register', {
         name,
         email,
         password,
       });
 
-      console.log(response, 'test');
+      toast.success('Account created successfully');
 
-      // toast.success('Account created successfully');
-
-      // router.push('/login');
+      router.push('/login');
     } catch (error: any) {
-      console.error('Registration error:', error);
       toast.error(error.response?.data?.message || 'Registration failed');
     }
   };
