@@ -32,13 +32,24 @@ export const applyLeave = async (req, res) => {
 
 export const getLeaves = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const leaves = await prisma.leave.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const user = req.user;
+
+    let leave;
+
+    if (user.role === 'EMPLOYEE') {
+      leave = await prisma.leave.findMany({
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
     res.json(leaves);
   } catch (error) {
     console.error(error);
@@ -49,7 +60,7 @@ export const getLeaves = async (req, res) => {
 export const updateLeaveStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    if (!status || !['approved', 'rejected'].includes(status)) {
+    if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
     const updated = await prisma.leave.update({

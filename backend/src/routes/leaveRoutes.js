@@ -11,11 +11,10 @@ const router = express.Router();
 
 router.post('/', authMiddleware, applyLeave);
 router.get('/', authMiddleware, getLeaves);
-
 router.put(
   '/:id',
   authMiddleware,
-  roleMiddleware('MANAGER'),
+  roleMiddleware('MANAGER', 'ADMIN'),
   updateLeaveStatus,
 );
 

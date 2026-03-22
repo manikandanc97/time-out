@@ -3,22 +3,37 @@
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import api from '@/services/api';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 const Register = () => {
-  const router = useRouter(); // ✅ correct place
+  const router = useRouter();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
       toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -68,10 +83,47 @@ const Register = () => {
 
         <Input
           id='password'
-          type='password'
+          type={showPassword ? 'text' : 'password'}
           label='Password'
           value={password}
+          inputClassName='pr-10'
           onChange={(e: any) => setPassword(e.target.value)}
+          rightElement={
+            <Button
+              type='button'
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className='bg-transparent hover:bg-transparent p-0 rounded focus:outline-none text-gray-700 hover:text-primary'
+            >
+              {showPassword ? (
+                <EyeOff color='gray' size={18} />
+              ) : (
+                <Eye color='gray' size={18} />
+              )}
+            </Button>
+          }
+        />
+
+        <Input
+          id='confirmPassword'
+          type={showConfirmPassword ? 'text' : 'password'}
+          label='Confirm Password'
+          value={confirmPassword}
+          onChange={(e: any) => setConfirmPassword(e.target.value)}
+          rightElement={
+            <Button
+              type='button'
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className='bg-transparent hover:bg-transparent p-0 rounded focus:outline-none text-gray-700 hover:text-primary'
+            >
+              {showConfirmPassword ? (
+                <EyeOff color='gray' size={18} />
+              ) : (
+                <Eye color='gray' size={18} />
+              )}
+            </Button>
+          }
         />
 
         <Button type='submit'>Register</Button>
