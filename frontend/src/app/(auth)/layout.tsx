@@ -1,14 +1,15 @@
 import { getOptionalUser } from '@/services/authService';
 import { redirect } from 'next/navigation';
+import React from 'react';
 
-const Home = async () => {
+const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
   const user = await getOptionalUser();
 
   if (user) {
     redirect('/dashboard');
   }
 
-  redirect('/login');
+  return <>{children}</>;
 };
 
-export default Home;
+export default AuthLayout;

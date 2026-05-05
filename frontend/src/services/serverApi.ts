@@ -76,7 +76,18 @@ const refreshAccessToken = cache(async () => {
     : null;
 });
 
-export async function serverFetch<T = unknown>(endpoint: string): Promise<T> {
+export async function serverFetch<T = unknown>(
+  endpoint: string,
+  options: { noRedirect: true },
+): Promise<T | null>;
+export async function serverFetch<T = unknown>(
+  endpoint: string,
+  options?: { noRedirect?: false },
+): Promise<T>;
+export async function serverFetch<T = unknown>(
+  endpoint: string,
+  options: { noRedirect?: boolean } = {},
+): Promise<T | null> {
   const baseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
   if (!baseUrl) {
@@ -94,6 +105,9 @@ export async function serverFetch<T = unknown>(endpoint: string): Promise<T> {
   }
 
   if (!accessToken) {
+    if (options.noRedirect) {
+      return null;
+    }
     redirect('/login');
   }
 
@@ -110,6 +124,9 @@ export async function serverFetch<T = unknown>(endpoint: string): Promise<T> {
     accessToken = await refreshAccessToken();
 
     if (!accessToken) {
+      if (options.noRedirect) {
+        return null;
+      }
       redirect('/login');
     }
 
@@ -123,6 +140,9 @@ export async function serverFetch<T = unknown>(endpoint: string): Promise<T> {
   }
 
   if (!res.ok) {
+    if (options.noRedirect) {
+      return null;
+    }
     const errorText = await res.text();
     throw new Error(`API failed: ${res.status} - ${errorText}`);
   }
